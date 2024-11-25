@@ -131,6 +131,25 @@ const PixelHoverSVG: React.FC = () => {
           opacity: 1,
           duration: 0.3,
         });
+
+        // animate the adiacent pixels
+        // const adiacentIndexes = [
+        //   index - 1,
+        //   index + 1,
+        //   index - cols,
+        //   index + cols,
+        // ];
+        // adiacentIndexes.forEach((i) => {
+        //   const adiacentGroup = rects[i];
+        //   if (adiacentGroup) {
+        //     const adiacentRect =
+        //       adiacentGroup.lastElementChild as SVGRectElement;
+        //     gsap.to(adiacentRect, {
+        //       fill: "red",
+        //       duration: 0.3,
+        //     });
+        //   }
+        // });
       });
 
       group.addEventListener("mouseleave", () => {

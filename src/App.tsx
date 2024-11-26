@@ -6,6 +6,9 @@ const PixelHoverSVG: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
+  const [bgColor1, setBgColor1] = useState("#bef264");
+  const [bgColor2, setBgColor2] = useState("#1f2937");
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const BASE_PIXEL_SIZE = 40; // Dimensione base del pixel
 
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -119,11 +122,18 @@ const PixelHoverSVG: React.FC = () => {
       const tl = gsap.timeline({ repeat: -1 });
       timelines.push(tl);
 
+      // calcola la traslazione in base alla posizione del rettangolo
+      // se il rettangolo è al centro allora non si muove
+      // andando verso il basso e a destra la traslazione è positiva
+      // andando verso l'alto e a sinistra la traslazione è negativa
+      const translateX = col - cols / 2;
+      const translateY = row - rows / 2;
+
       // Effetto hover
       group.addEventListener("mouseenter", () => {
         gsap.to(rect, {
           fill: "rgba(255,255,255,0.3)",
-          transform: `translate(-${pixelWidth / 3}px, -${pixelHeight / 3}px)`,
+          transform: `translate(${translateX * 2}px, ${translateY * 2}px)`,
           duration: 0.3,
           ease: "power2.out",
         });
@@ -131,25 +141,6 @@ const PixelHoverSVG: React.FC = () => {
           opacity: 1,
           duration: 0.3,
         });
-
-        // animate the adiacent pixels
-        // const adiacentIndexes = [
-        //   index - 1,
-        //   index + 1,
-        //   index - cols,
-        //   index + cols,
-        // ];
-        // adiacentIndexes.forEach((i) => {
-        //   const adiacentGroup = rects[i];
-        //   if (adiacentGroup) {
-        //     const adiacentRect =
-        //       adiacentGroup.lastElementChild as SVGRectElement;
-        //     gsap.to(adiacentRect, {
-        //       fill: "red",
-        //       duration: 0.3,
-        //     });
-        //   }
-        // });
       });
 
       group.addEventListener("mouseleave", () => {
@@ -194,10 +185,31 @@ const PixelHoverSVG: React.FC = () => {
     };
   }, [dimensions, cols, rows]);
 
+  useEffect(() => {
+    // setBgColor1(isDarkMode ? "#1f2937" : "#bef264");
+    // setBgColor2(isDarkMode ? "#111827" : "#1f2937");
+    // change fill color of all rects
+    const rects = svgRef.current?.querySelectorAll("rect");
+    if (!rects) return;
+    rects.forEach((rect) => {
+      // rect.setAttribute(
+      //   "fill",
+      //   !isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+      // );
+      rect.setAttribute(
+        "stroke",
+        !isDarkMode ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"
+      );
+    });
+  }, [isDarkMode]);
+
   return (
     <div
       ref={containerRef}
-      className="bg-gradient-to-br from-gray-800 to-lime-300 min-h-screen w-screen relative overflow-hidden"
+      className={`bg-gradient-to-br  min-h-screen w-screen relative overflow-hidden`}
+      style={{
+        background: `linear-gradient(to bottom right, ${bgColor1}, ${bgColor2})`,
+      }}
     >
       <svg
         ref={svgRef}
@@ -215,6 +227,31 @@ const PixelHoverSVG: React.FC = () => {
           <p className="text-white/80 mt-4">
             La larghezza del pixel è di {BASE_PIXEL_SIZE}px,
           </p>
+          <input
+            type="color"
+            className="mt-4"
+            value={bgColor1}
+            onChange={(e) => setBgColor1(e.target.value)}
+          />
+          <input
+            type="color"
+            className="mt-4"
+            value={bgColor2}
+            onChange={(e) => setBgColor2(e.target.value)}
+          />
+          {/* checkbox darkmode */}
+          <div className="mt-4">
+            <input
+              type="checkbox"
+              id="darkmode"
+              name="darkmode"
+              checked={isDarkMode}
+              onChange={() => setIsDarkMode(!isDarkMode)}
+            />
+            <label htmlFor="darkmode" className="text-white/80">
+              Dark mode
+            </label>
+          </div>
         </div>
       </div>
     </div>
